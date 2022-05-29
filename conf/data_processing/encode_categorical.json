@@ -1,0 +1,23 @@
+{
+    "Education_Level": {
+        "Uneducated": 0,
+        "High School": 1,
+        "College": 2,
+        "Graduate": 3,
+        "Post-Graduate": 4,
+        "Doctorate": 5
+    },
+    "Income_Category": {
+        "Less than $40K": 1,
+        "$40K - $60K": 2,
+        "$60K - $80K": 3,
+        "$80K - $120K": 4,
+        "$120K +": 5
+    },
+    "Card_Category": {
+        "Blue": 1,
+        "Silver": 2,
+        "Gold": 3,
+        "Platinum": 4
+    }
+}
