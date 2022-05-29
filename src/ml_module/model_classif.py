@@ -8,8 +8,18 @@ from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import roc_auc_score, classification_report
 
 
-    
 def fit_model(parameters, X_train, y_train, X_val=None, y_val=None):
+    """Split dataset into train, validation and test based on year and month.
+   
+    Args:
+        parameters: Model hyperparameters.
+        X_train: Train dataset with independent variables.
+        y_train: Train dataset with dependent variable.
+        X_val: Validation dataset with independent variables.
+        y_val: Validation dataset with dependent variable.
+    Returns:
+        Fitted xgboost classifier model.
+    """
     
     # create booster with defined parameters
     booster = xgb.XGBClassifier(**parameters)
@@ -30,8 +40,16 @@ def fit_model(parameters, X_train, y_train, X_val=None, y_val=None):
     return model
 
 
-
 def predict_results(model, X, y_true):
+    """Predicts probability of datapoint being class 1 and computes AUC score.
+   
+    Args:
+        model: Fitted model.
+        X: Dataset with independent variables.
+        y_true: Dependent variable.
+    Returns:
+        Returns array with estimated probabilities and value of AUC.
+    """
     
     # predict probabilities
     estimated_prob = model.predict_proba(X)[:,1]
@@ -42,8 +60,18 @@ def predict_results(model, X, y_true):
     return estimated_prob, auc_score
 
 
-
 def predict_test(root_folder, model, X, y_true):
+    """Predicts and saves estimated probabilities for test dataset. Also prints AUC score,
+       precision, recall, f1-score and accuracy.
+   
+    Args:
+        root_folder: Path of project root folder.
+        model: Fitted model.
+        X: Dataset with independent variables.
+        y_true: Dependent variable.
+    Returns:
+        None
+    """
     
     print('Predicting churn flag for test dataset...')
     
@@ -70,8 +98,18 @@ def predict_test(root_folder, model, X, y_true):
     return None
 
 
-
 def grid_search_xgboost(X_train,y_train,X_val,y_val,param_grid):
+    """Performs a gridsearch over specified parameters grid.
+   
+    Args:
+        X_train: Train dataset with independent variables.
+        y_train: Train dataset with dependent variable.
+        X_val: Validation dataset with independent variables.
+        y_val: Validation dataset with dependent variable.
+        param_grid: Grid with hyperparameters of xgboost.
+    Returns:
+        List of tuples with AUC for train and validation datasets and associated parameters.
+    """
     
     print('Performing gridsearch...')
     
@@ -96,8 +134,19 @@ def grid_search_xgboost(X_train,y_train,X_val,y_val,param_grid):
     return results
         
 
-
 def train_model(root_folder,X_train,y_train,X_val,y_val):
+    """Performs a gridsearch over specified parameters grid, fit xgboost model with
+       the parameters that maximize validation score. Also dumps pickle file with trained model.
+   
+    Args:
+        root_folder: Path of project root folder.
+        X_train: Train dataset with independent variables.
+        y_train: Train dataset with dependent variable.
+        X_val: Validation dataset with independent variables.
+        y_val: Validation dataset with dependent variable.
+    Returns:
+        Fitted model.
+    """
     
     gridsearch_output_file = 'grid_search_results.csv'
     model_pickle_file = 'xgboost_classifier.sav'

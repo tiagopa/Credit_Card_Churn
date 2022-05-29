@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 import pandas as pd
 from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
@@ -8,8 +7,15 @@ from imblearn.pipeline import Pipeline
 from collections import Counter
 
 
-
 def dataset_sampling(X,y):
+    """Apply oversampling using SMOTE and then random undersampling.
+   
+    Args:
+        X: Dataset with independent variables.
+        y: Dependent variable.
+    Returns:
+        Independent and dependent variables after sampling.
+    """
     
     # check proportion of class 1
     proport_class1 = round(y.mean()*100,1)
@@ -36,8 +42,14 @@ def dataset_sampling(X,y):
     return X_sampled, y_sampled
 
 
-
 def train_test_split(dataset):
+    """Split dataset into train, validation and test based on year and month.
+   
+    Args:
+        dataset: Pandas dataset.
+    Returns:
+        Train, validation and test datasets.
+    """
     
     # define dates to split dataset
     train_dates = [202101,202102,202103,202104]

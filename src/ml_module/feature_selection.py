@@ -1,12 +1,22 @@
+# -*- coding: utf-8 -*-
+
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from boruta import BorutaPy
 
 
-
 def quasi_constant_features(dataset, threshold=0.99):
-
+    """Identification of columns in the dataset that are constant or quasi-constant.
+   
+    Args:
+        dataset: Pandas dataset.
+        threshold: If any value of a given column represents more than this percentage
+                   of datapoints the column is constant.
+    Returns:
+        List of constant or quasi-constant columns.
+    """
+    
     list_columns = dataset.columns
     quasi_constant_columns = []
     
@@ -18,12 +28,11 @@ def quasi_constant_features(dataset, threshold=0.99):
     return quasi_constant_columns
 
 
-
 class MultiCollinearityEliminator():
-    """
-    From https://stackoverflow.com/questions/29294983/how-to-calculate-correlation-between-all-columns-and-remove-highly-correlated-on
-    by: Joseph Jacob
+    """ Identify highly correlated features and drops the one that is least correlated with the target.
+    code from Joseph Jacob: https://stackoverflow.com/questions/29294983/how-to-calculate-correlation-between-all-columns-and-remove-highly-correlated-on
     """   
+    
     #Class Constructor
     def __init__(self, df, target, threshold=0.7, corr_method='pearson'):
         self.df = df
@@ -106,8 +115,15 @@ class MultiCollinearityEliminator():
         return list(self.df)
 
 
-
 def boruta_feature_selection(X,y):
+    """Apply boruta pyfeature selection algorithm, based on Random Forest Classifier.
+   
+    Args:
+        X: Dataset with independent variables.
+        y: Dependent variable.
+    Returns:
+        Lists with accepted and rejected features.
+    """
     
     # RandomForestClassifier as the estimator
     rf_class = RandomForestClassifier(random_state=1, n_estimators=1000, max_depth=5)
@@ -125,8 +141,19 @@ def boruta_feature_selection(X,y):
     return accepted_feats, rejected_feats
 
 
-
 def select_features(X,y):
+    """Performs feature selection:
+        1) drop constant or quasi-constant features
+        2) drop gender columns (not ethic)
+        3) remove multicollinearity
+        4) boruta feature selection
+   
+    Args:
+        X: Dataset with independent variables.
+        y: Dependent variable.
+    Returns:
+        List of features to keep in dataset.
+    """
     
     print('Selecting features...')
     

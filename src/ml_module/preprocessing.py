@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 import pandas as pd
 import numpy as np
 import json
@@ -9,28 +8,43 @@ from sklearn.impute import KNNImputer
 from sklearn.ensemble import IsolationForest
 
 
-
 def encode_categorical(root_folder,dataset):
-   
-    # load values to imput
+    """Encodes categorical variables present on dataset.
+    
+    Args:
+        root_folder: Path of project root folder.
+        dataset: Pandas dataset.
+    Returns:
+        Pandas dataset with categorical variables encoded.
+    """
+    
+    # load values to input
     with open(root_folder+'\\conf\\data_processing\\encode_categorical.json', 'r') as fp:
         missing_imputation = json.load(fp)
-    
+
     cols_to_imputate = list(missing_imputation)
-    
+
     # encode categorical cols with values from dict
     dataset.update(dataset[cols_to_imputate].apply(lambda col: col.map(missing_imputation[col.name])))
     dataset[cols_to_imputate] = dataset[cols_to_imputate].astype('float')
-    
+
     # encode other categorical cols, except index cols
     cat_cols = [col for col in dataset.columns if dataset[col].dtype == 'object' and col not in ['CUSTOMER_ID','YEAR_MONTH']]
     dataset = pd.get_dummies(data=dataset, columns=cat_cols, dummy_na=False)
-    
+
     return dataset
-    
 
 
 def preprocessing(root_folder,path_to_dataset):
+    """Load csv and preprocess dataset (encode target variable, replace invalid
+    values and encode categorical variables).
+    
+    Args:
+        root_folder: Path of project root folder.
+        path_to_dataset: Location of dataset inside project root folder.
+    Returns:
+        Preprocessed pandas dataframe.
+    """
     
     dataset = pd.read_csv(root_folder+path_to_dataset)
     
@@ -48,8 +62,17 @@ def preprocessing(root_folder,path_to_dataset):
     return dataset
 
 
-
-def knn_fillnan(root_folder,trainset, validset, testset):
+def knn_fillnan(root_folder, trainset, validset, testset):
+    """Fill missing values with mean value of K-nearest neighbors.
+    
+    Args:
+        root_folder: Path of project root folder.
+        trainset: Pandas dataframe with trainset.
+        validset: Pandas dataframe with validationset.
+        testset: Pandas dataframe with testset.
+    Returns:
+        Input pandas dataframes after imputation.
+    """
     
     # copy datasets
     trainset_temp = trainset.copy()
@@ -84,8 +107,18 @@ def knn_fillnan(root_folder,trainset, validset, testset):
     return trainset_temp, validset_temp, testset_temp
 
 
-
 def fill_missing_values(root_folder,trainset, validset, testset):
+    """Fill missing values with mean value of K-nearest neighbors if numerical/continuous
+    features, and with mode value of the feature if discrete feature.
+    
+   Args:
+        root_folder: Path of project root folder.
+        trainset: Pandas dataframe with trainset.
+        validset: Pandas dataframe with validationset.
+        testset: Pandas dataframe with testset.
+    Returns:
+        Input pandas dataframes after imputation.
+    """
     
     # fillna for numerical/continuous columns
     trainset_temp, validset_temp, testset_temp = knn_fillnan(root_folder,trainset, validset, testset)
@@ -111,8 +144,15 @@ def fill_missing_values(root_folder,trainset, validset, testset):
     return trainset_temp, validset_temp, testset_temp
     
     
-
 def remove_outliers(dataset, contamination=0.05):
+    """Identifies datapoints that are outliers, based on isolation forest.
+    
+   Args:
+        dataset: Pandas dataframe with dataset.
+        contamination: Contamination of the dataset.
+    Returns:
+        Boolean mask with identification of outliers.
+    """
     
     iso = IsolationForest(contamination=contamination)
     yhat = iso.fit_predict(dataset.values)
